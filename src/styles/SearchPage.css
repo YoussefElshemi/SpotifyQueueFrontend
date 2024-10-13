@@ -1,0 +1,82 @@
+.SearchPage {
+  font-family: 'Arial', sans-serif;
+  margin: 0 auto;
+  padding: 0px 20px 20px 20px;
+  max-width: 1200px;
+}
+
+h2 {
+  margin-bottom: 20px;
+}
+
+form {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+input {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #00B8A3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #ccc;
+}
+
+.search-results {
+  list-style: none;
+  padding: 0;
+}
+
+.search-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #ddd;
+}
+
+.album-art-small {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.album-art-medium {
+  width: 128px;
+  height: 128px;
+  object-fit: cover;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.search-item-details {
+  flex: 1;
+}
+
+.search-item-details button {
+  margin-right: 5px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding-bottom: 120px;
+}
