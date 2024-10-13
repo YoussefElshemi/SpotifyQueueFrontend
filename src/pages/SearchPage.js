@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { OrbitProgress } from 'react-loading-indicators';
 import PlayerFooter from '../components/PlayerFooter';
 import Alert from '@mui/material/Alert';
@@ -100,6 +100,22 @@ const SearchPage = () => {
       fetchSearchResults(query, pagination.limit, pagination.offset - pagination.limit);
     }
   };
+
+  useEffect(() => {
+    if (message) {
+      setTimeout(() => {
+        setMessage(null);
+      }, 5000);
+    }
+  }, [message]);
+
+  useEffect(() => {
+    if (error) {
+      setTimeout(() => {
+        setError(null);
+      }, 5000);
+    }
+  }, [error]);
 
   return (
     <div className="SearchPage">

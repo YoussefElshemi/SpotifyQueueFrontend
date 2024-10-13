@@ -44,6 +44,14 @@ const QueuePage = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    if (error) {
+      setTimeout(() => {
+        setError(null);
+      }, 5000);
+    }
+  }, [error]);
+
   return (
     <div className="QueuePage">
       <div className="queue-list">
