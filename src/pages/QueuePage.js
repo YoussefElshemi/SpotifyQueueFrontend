@@ -46,9 +46,8 @@ const QueuePage = () => {
 
   useEffect(() => {
     if (error) {
-      setTimeout(() => {
-        setError(null);
-      }, 5000);
+      const timer = setTimeout(() => setError(null), 5000);
+      return () => clearTimeout(timer);
     }
   }, [error]);
 

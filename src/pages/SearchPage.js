@@ -5,26 +5,37 @@ import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
+import { useSearchParams } from 'react-router-dom';
 import '../styles/SearchPage.css';
 
 const SearchPage = () => {
-  const [query, setQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [pagination, setPagination] = useState({ limit: 10, offset: 0, total: 0 });
-  const [isLoading, setIsLoading] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
+  const [query, setQuery] = useState(searchParams.get('searchQuery') || '');
+  const [searchResults, setSearchResults] = useState([]);
+  const [pagination, setPagination] = useState({
+    limit: Number(searchParams.get('limit')) || 10,
+    offset: Number(searchParams.get('offset')) || 0,
+    total: 0
+  });
+
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
 
   const fetchSearchResults = async (searchQuery, limit, offset) => {
+    if (!searchQuery.length) return;
+
     try {
       setIsLoading(true);
       const queryParams = new URLSearchParams({
-        "searchQuery": searchQuery,
-        "offset": offset,
-        "limit": limit
+        searchQuery,
+        offset: offset,
+        limit: limit,
       });
-      const response = await fetch(`${process.env.REACT_APP_SPOTIFY_QUEUE_API_BASE_URL}/search?${queryParams}`);
+      const response = await fetch(
+        `${process.env.REACT_APP_SPOTIFY_QUEUE_API_BASE_URL}/search?${queryParams}`
+      );
       if (!response.ok) {
         throw new Error('Failed to fetch search results');
       }
@@ -40,20 +51,26 @@ const SearchPage = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
+    const newParams = {
+      searchQuery: query,
+      offset: '0',
+      limit: pagination.limit,
+    };
+    setSearchParams(newParams);
     fetchSearchResults(query, pagination.limit, 0);
   };
 
   const handleAddToQueue = async (item) => {
     try {
       const body = JSON.stringify({
-        trackUri: item.uri
+        trackUri: item.uri,
       });
       await fetch(`${process.env.REACT_APP_SPOTIFY_QUEUE_API_BASE_URL}/queue`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body
+        body,
       });
       setMessage(`${item.name} added to queue!`);
     } catch (err) {
@@ -64,26 +81,25 @@ const SearchPage = () => {
   const handlePlayTrack = async (item) => {
     try {
       const body = JSON.stringify({
-        trackUri: item.uri
+        trackUri: item.uri,
       });
       await fetch(`${process.env.REACT_APP_SPOTIFY_QUEUE_API_BASE_URL}/player/play`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body
+        body,
       });
-
       const queueRecommendedBody = JSON.stringify({
         trackId: item.id,
-        limit: 10
+        limit: 10,
       });
       await fetch(`${process.env.REACT_APP_SPOTIFY_QUEUE_API_BASE_URL}/queue/recommended`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: queueRecommendedBody
+        body: queueRecommendedBody,
       });
       setMessage(`${item.name} played!`);
     } catch (err) {
@@ -92,28 +108,47 @@ const SearchPage = () => {
   };
 
   const handleNextPage = () => {
-    fetchSearchResults(query, pagination.limit, pagination.offset + pagination.limit);
+    const newOffset = pagination.offset + pagination.limit;
+    const newParams = {
+      searchQuery: query,
+      offset: newOffset,
+      limit: pagination.limit,
+    };
+    setSearchParams(newParams);
+    fetchSearchResults(query, pagination.limit, newOffset);
   };
 
   const handlePreviousPage = () => {
     if (pagination.offset > 0) {
-      fetchSearchResults(query, pagination.limit, pagination.offset - pagination.limit);
+      const newOffset = pagination.offset - pagination.limit;
+      const newParams = {
+        searchQuery: query,
+        offset: newOffset,
+        limit: pagination.limit,
+      };
+      setSearchParams(newParams);
+      fetchSearchResults(query, pagination.limit, newOffset);
     }
   };
 
   useEffect(() => {
+    const searchQuery = searchParams.get('searchQuery') || '';
+    const limit = Number(searchParams.get('limit')) || 10;
+    const offset = Number(searchParams.get('offset')) || 0;
+    fetchSearchResults(searchQuery, limit, offset);
+  }, [searchParams]);
+
+  useEffect(() => {
     if (message) {
-      setTimeout(() => {
-        setMessage(null);
-      }, 5000);
+      const timer = setTimeout(() => setMessage(null), 5000);
+      return () => clearTimeout(timer);
     }
   }, [message]);
 
   useEffect(() => {
     if (error) {
-      setTimeout(() => {
-        setError(null);
-      }, 5000);
+      const timer = setTimeout(() => setError(null), 5000);
+      return () => clearTimeout(timer);
     }
   }, [error]);
 
