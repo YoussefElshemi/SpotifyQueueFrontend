@@ -13,12 +13,12 @@ const SearchPage = () => {
   const fetchSearchResults = async (searchQuery, limit, offset) => {
     try {
       setIsLoading(true);
-      const body = JSON.stringify({
+      const queryParams = new URLSearchParams({
         "searchQuery": searchQuery,
         "offset": offset,
         "limit": limit
       });
-      const response = await fetch(`${process.env.REACT_APP_SPOTIFY_QUEUE_API_BASE_URL}/search`, { method: 'POST', body, headers: { 'Content-Type': 'application/json' } });
+      const response = await fetch(`${process.env.REACT_APP_SPOTIFY_QUEUE_API_BASE_URL}/search?${queryParams}`);
       if (!response.ok) {
         throw new Error('Failed to fetch search results');
       }
