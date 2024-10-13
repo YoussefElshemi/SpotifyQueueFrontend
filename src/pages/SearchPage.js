@@ -8,56 +8,29 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useSearchParams } from 'react-router-dom';
 import '../styles/SearchPage.css';
 
+const PAGE_LIMIT = 10;
+
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [query, setQuery] = useState(searchParams.get('searchQuery') || '');
+  const [query, setQuery] = useState(searchParams.get('query') || '');
   const [searchResults, setSearchResults] = useState([]);
   const [pagination, setPagination] = useState({
-    limit: Number(searchParams.get('limit')) || 10,
-    offset: Number(searchParams.get('offset')) || 0,
+    limit: PAGE_LIMIT,
+    page: Number(searchParams.get('page')) || 1,
     total: 0
   });
-
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
 
-  const fetchSearchResults = async (searchQuery, limit, offset) => {
-    if (!searchQuery.length) return;
-
-    try {
-      setIsLoading(true);
-      const queryParams = new URLSearchParams({
-        searchQuery,
-        offset: offset,
-        limit: limit,
-      });
-      const response = await fetch(
-        `${process.env.REACT_APP_SPOTIFY_QUEUE_API_BASE_URL}/search?${queryParams}`
-      );
-      if (!response.ok) {
-        throw new Error('Failed to fetch search results');
-      }
-      const data = await response.json();
-      setSearchResults(data.items);
-      setPagination({ limit: data.limit, offset: data.offset, total: data.total });
-    } catch (err) {
-      setError('Failed to search');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleSearch = (e) => {
     e.preventDefault();
     const newParams = {
-      searchQuery: query,
-      offset: '0',
-      limit: pagination.limit,
+      query,
+      page: '1',
     };
     setSearchParams(newParams);
-    fetchSearchResults(query, pagination.limit, 0);
   };
 
   const handleAddToQueue = async (item) => {
@@ -92,7 +65,7 @@ const SearchPage = () => {
       });
       const queueRecommendedBody = JSON.stringify({
         trackId: item.id,
-        limit: 10,
+        limit: PAGE_LIMIT,
       });
       await fetch(`${process.env.REACT_APP_SPOTIFY_QUEUE_API_BASE_URL}/queue/recommended`, {
         method: 'POST',
@@ -108,34 +81,56 @@ const SearchPage = () => {
   };
 
   const handleNextPage = () => {
-    const newOffset = pagination.offset + pagination.limit;
+    const newPage = pagination.page + 1;
     const newParams = {
-      searchQuery: query,
-      offset: newOffset,
-      limit: pagination.limit,
+      query,
+      page: newPage,
     };
     setSearchParams(newParams);
-    fetchSearchResults(query, pagination.limit, newOffset);
   };
 
   const handlePreviousPage = () => {
-    if (pagination.offset > 0) {
-      const newOffset = pagination.offset - pagination.limit;
+    if (pagination.page > 1) {
+      const newPage = pagination.page - 1;
       const newParams = {
-        searchQuery: query,
-        offset: newOffset,
-        limit: pagination.limit,
+        query,
+        page: newPage,
       };
       setSearchParams(newParams);
-      fetchSearchResults(query, pagination.limit, newOffset);
     }
   };
 
   useEffect(() => {
-    const searchQuery = searchParams.get('searchQuery') || '';
-    const limit = Number(searchParams.get('limit')) || 10;
-    const offset = Number(searchParams.get('offset')) || 0;
-    fetchSearchResults(searchQuery, limit, offset);
+    const searchQuery = searchParams.get('query') || '';
+    const page = Number(searchParams.get('page')) || 1;
+    
+    const fetchSearchResults = async (searchQuery, page) => {
+      if (!searchQuery.length) return;
+      try {
+        setIsLoading(true);
+        const offset = (page - 1) * PAGE_LIMIT;
+        const queryParams = new URLSearchParams({
+          searchQuery,
+          offset: offset,
+          limit: PAGE_LIMIT,
+        });
+        const response = await fetch(
+          `${process.env.REACT_APP_SPOTIFY_QUEUE_API_BASE_URL}/search?${queryParams}`
+        );
+        if (!response.ok) {
+          throw new Error('Failed to fetch search results');
+        }
+        const data = await response.json();
+        setSearchResults(data.items);
+        setPagination({ page, total: data.total });
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSearchResults(searchQuery, page);
   }, [searchParams]);
 
   useEffect(() => {
@@ -242,9 +237,9 @@ const SearchPage = () => {
       </ul>
 
       <div className="pagination">
-        <button disabled={pagination.offset === 0} onClick={handlePreviousPage}>Previous</button>
+        <button disabled={pagination.page === 1} onClick={handlePreviousPage}>Previous</button>
         <button
-          disabled={pagination.offset + pagination.limit >= pagination.total}
+          disabled={pagination.page * PAGE_LIMIT >= pagination.total}
           onClick={handleNextPage}
         >
           Next
