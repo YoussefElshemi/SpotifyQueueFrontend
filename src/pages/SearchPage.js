@@ -73,6 +73,18 @@ const SearchPage = () => {
         },
         body
       });
+
+      const queueRecommendedBody = JSON.stringify({
+        trackId: item.id,
+        limit: 10
+      });
+      await fetch(`${process.env.REACT_APP_SPOTIFY_QUEUE_API_BASE_URL}/queue/recommended`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: queueRecommendedBody
+      });
       setMessage(`${item.name} played!`);
     } catch (err) {
       setError('Failed to play');
