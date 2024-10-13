@@ -14,11 +14,8 @@ const PlayerFooter = () => {
   const [isShuffled, setIsShuffled] = useState(false);
   const [isRepeated, setIsRepeated] = useState(false);
   const [duration, setDuration] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
 
   const fetchState = async () => {
-    setIsLoading(true);
     try {
       const response = await fetch(`${process.env.REACT_APP_SPOTIFY_QUEUE_API_BASE_URL}/player`);
       if (!response.ok) {
@@ -34,9 +31,7 @@ const PlayerFooter = () => {
       setDuration(data.item?.durationMs || 0);
 
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
+      console.error(err.message);
     }
   };
 
@@ -50,7 +45,6 @@ const PlayerFooter = () => {
   };
 
   const onVolumeChange = async (_, volume) => {
-    setIsLoading(true);
     try {
       const body = JSON.stringify({
         volume
@@ -65,15 +59,12 @@ const PlayerFooter = () => {
       }
       setVolume(volume);
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
+      console.error(err.message);
     }
   };
 
   const onProgressChange = async (_, progress) => {
     const progressMs = Math.round((progress / 100) * duration);
-    setIsLoading(true);
     try {
       const body = JSON.stringify({
         progressMs
@@ -88,14 +79,11 @@ const PlayerFooter = () => {
       }
       setProgress(progressMs);
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
+      console.error(err.message);
     }
   };
 
   const onPlayPause = async () => {
-    setIsLoading(true);
     try {
       const body = JSON.stringify({});
       const response = await fetch(`${process.env.REACT_APP_SPOTIFY_QUEUE_API_BASE_URL}/player/${isPlaying ? 'pause' : 'play'}`, {
@@ -108,14 +96,11 @@ const PlayerFooter = () => {
       }
       setIsPlaying(!isPlaying);
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
+      console.error(err.message);
     }
   };
 
   const onShuffle = async () => {
-    setIsLoading(true);
     try {
       const body = JSON.stringify({
         state: !isShuffled
@@ -130,14 +115,11 @@ const PlayerFooter = () => {
       }
       setIsShuffled(!isShuffled);
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
+      console.error(err.message);
     }
   };
 
   const onRepeat = async () => {
-    setIsLoading(true);
     try {
       const body = JSON.stringify({
         state: isRepeated ? 'off' : 'context'
@@ -152,37 +134,29 @@ const PlayerFooter = () => {
       }
       setIsRepeated(!isRepeated);
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
+      console.error(err.message);
     }
   };
 
   const onPrevious = async () => {
-    setIsLoading(true);
     try {
       const response = await fetch(`${process.env.REACT_APP_SPOTIFY_QUEUE_API_BASE_URL}/player/previous`, { method: 'POST' });
       if (!response.ok) {
         throw new Error('Failed to go to previous song');
       }
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
+      console.error(err.message);
     }
   };
 
   const onNext = async () => {
-    setIsLoading(true);
     try {
       const response = await fetch(`${process.env.REACT_APP_SPOTIFY_QUEUE_API_BASE_URL}/player/next`, { method: 'POST' });
       if (!response.ok) {
         throw new Error('Failed to go to next song');
       }
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
+      console.error(err.message);
     }
   };
 
@@ -211,7 +185,7 @@ const PlayerFooter = () => {
               </div>
             </div>
             <p className="track-progress">{formatDuration(progress)}</p>
-            <Slider 
+            <Slider
               aria-label="Playback"
               valueLabelDisplay="auto"
               value={(progress / duration) * 100}

@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { OrbitProgress } from 'react-loading-indicators';
 import PlayerFooter from '../components/PlayerFooter';
+import Alert from '@mui/material/Alert';
+import IconButton from '@mui/material/IconButton';
+import Collapse from '@mui/material/Collapse';
+import CloseIcon from '@mui/icons-material/Close';
 import '../styles/SearchPage.css';
 
 const SearchPage = () => {
@@ -8,7 +12,9 @@ const SearchPage = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [pagination, setPagination] = useState({ limit: 10, offset: 0, total: 0 });
   const [isLoading, setIsLoading] = useState(false);
+
   const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null);
 
   const fetchSearchResults = async (searchQuery, limit, offset) => {
     try {
@@ -26,7 +32,7 @@ const SearchPage = () => {
       setSearchResults(data.items);
       setPagination({ limit: data.limit, offset: data.offset, total: data.total });
     } catch (err) {
-      setError(err.message);
+      setError('Failed to search');
     } finally {
       setIsLoading(false);
     }
@@ -49,9 +55,9 @@ const SearchPage = () => {
         },
         body
       });
-      alert(`${item.name} added to queue!`);
+      setMessage(`${item.name} added to queue!`);
     } catch (err) {
-      console.error('Failed to add to queue', err);
+      setError('Failed to add to queue');
     }
   };
 
@@ -67,9 +73,9 @@ const SearchPage = () => {
         },
         body
       });
-      alert(`${item.name} played!`);
+      setMessage(`${item.name} played!`);
     } catch (err) {
-      console.error('Failed to play', err);
+      setError('Failed to play');
     }
   };
 
@@ -89,6 +95,50 @@ const SearchPage = () => {
         <div className="loading-container">
           <OrbitProgress variant="track-disc" speedPlus="0" easing="linear" />
         </div>
+      )}
+      {message && (
+        <Collapse in={message}>
+          <Alert
+            action={
+              <IconButton
+                aria-label="close"
+                color="inherit"
+                size="small"
+                onClick={() => {
+                  setMessage(null);
+                }}
+              >
+                <CloseIcon fontSize="inherit" />
+              </IconButton>
+            }
+            sx={{ mb: 2 }}
+            severity="success"
+          >
+            {message}
+          </Alert>
+        </Collapse>
+      )}
+      {error && (
+        <Collapse in={error}>
+          <Alert
+            action={
+              <IconButton
+                aria-label="close"
+                color="inherit"
+                size="small"
+                onClick={() => {
+                  setError(null);
+                }}
+              >
+                <CloseIcon fontSize="inherit" />
+              </IconButton>
+            }
+            sx={{ mb: 2 }}
+            severity="error"
+          >
+            {error}
+          </Alert>
+        </Collapse>
       )}
       <h2>Search for Songs</h2>
       <form onSubmit={handleSearch}>
