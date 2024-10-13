@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, NavLink } from 'react-router-dom';
 import QueuePage from './pages/QueuePage';
 import SearchPage from './pages/SearchPage';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
 import './styles/App.css';
 
 const App = () => {
@@ -24,7 +26,7 @@ const App = () => {
             </li>
           </ul>
           <button onClick={toggleLightMode} className="light-mode-toggle">
-            {lightMode ? 'Dark Mode' : 'Light Mode'}
+            {<FontAwesomeIcon icon={lightMode ? faMoon : faSun}/>}
           </button>
         </nav>
         <Routes>

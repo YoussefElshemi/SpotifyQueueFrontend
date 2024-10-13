@@ -111,7 +111,7 @@ const SearchPage = () => {
                 <CloseIcon fontSize="inherit" />
               </IconButton>
             }
-            sx={{ mb: 2 }}
+            sx={{ mt: 2 }}
             severity="success"
           >
             {message}
@@ -133,7 +133,7 @@ const SearchPage = () => {
                 <CloseIcon fontSize="inherit" />
               </IconButton>
             }
-            sx={{ mb: 2 }}
+            sx={{ mt: 2 }}
             severity="error"
           >
             {error}
