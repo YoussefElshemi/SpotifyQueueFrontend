@@ -62,7 +62,7 @@ const QueuePage = () => {
                   <CloseIcon fontSize="inherit" />
                 </IconButton>
               }
-              sx={{ mb: 2 }}
+              sx={{ mt: 2 }}
               severity="error"
             >
               {error}

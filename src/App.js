@@ -1,13 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, NavLink } from 'react-router-dom';
 import QueuePage from './pages/QueuePage';
 import SearchPage from './pages/SearchPage';
 import './styles/App.css';
 
 const App = () => {
+  const [lightMode, setLightMode] = useState(false);
+
+  const toggleLightMode = () => {
+    setLightMode(!lightMode);
+  };
+
   return (
     <Router>
-      <div className="App">
+      <div className={`App ${lightMode ? 'light-mode' : 'dark-mode'}`}>
         <nav className="navbar">
           <ul className="nav-links">
             <li>
@@ -17,6 +23,9 @@ const App = () => {
               <NavLink to="/search" className="nav-link">Search</NavLink>
             </li>
           </ul>
+          <button onClick={toggleLightMode} className="light-mode-toggle">
+            {lightMode ? 'Dark Mode' : 'Light Mode'}
+          </button>
         </nav>
         <Routes>
           <Route path="/" element={<QueuePage />} />
